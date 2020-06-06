@@ -1,43 +1,40 @@
-<template>
+ <template>
   <div class="home">
-    <input type="text" placeholder="name" v-model="name">
-    <input type="number" placeholder="age" v-model="age">
-    <button @click="add">送信</button>
+    <div v-for="(data,index) in $store.state.user" :key="index">
+      <p>{{data.name}}</p>
+      <p>{{data.age}}</p>
+    </div>
+    <button @click="changeUser">変更 </button>
   </div>
 </template>
-
 <script>
 import firebase from "firebase";
 export default {
-  // deta(){
-  //   return{
-  //     name: "",
-  //     age: ""
-  //   };
-  // },
+  data() {
+    return {
+      users: []
+    };
+  },
   methods: {
-    add() {
+    changeUser() {
+      this.$store.dispatch("changeUserAction" , {
+        user: this.users
+      });
+    },
+    get() {
       var db = firebase.firestore();
       db.collection("users")
-        .add({
-          name: "太郎",
-          age: 20
-        })
-        .then(doc => {
-          console.log(doc);
+        .get()
+        .then(query => {
+          query.forEach(doc => {
+            var data = doc.data();
+            this.users.push(data);
+          });
         });
+      }
+    },
+    created() {
+      this.get();
     }
-  }
-};
-// export default{
-//   created(){
-//     const date = new Date()
-//     const createdTime = date.getMilliseconds()
-//     console.log(createdTime)
-//   },
-//   mounted(){
-//     const date = new Date()
-//     const mountedTime = date.getMilliseconds()
-//     console.log(mountedTime)
-//   }
+  };
 </script>
